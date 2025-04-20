@@ -1,8 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getAllBookmarks, getBookmarksByPlatform, searchBookmarks, deleteBookmark, Bookmark, SocialPlatform } from "@/utils/bookmarks";
-import { User } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
 import BookmarkGrid from "@/components/bookmarks/BookmarkGrid";
 import FilterBar from "@/components/bookmarks/FilterBar";
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
                 </Button>
               }
             />
-            <ProfileDropdown user={user} onLogout={handleLogout} />
+            {user && <ProfileDropdown user={user} onLogout={handleLogout} />}
           </div>
         </div>
       </header>

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings } from "lucide-react";
-import { User as UserType } from "@/utils/auth";
+import { User as UserType } from "@supabase/supabase-js";
 
 interface ProfileDropdownProps {
   user: UserType;
@@ -18,19 +18,23 @@ interface ProfileDropdownProps {
 }
 
 export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
+  // Get display name from user email or metadata
+  const displayName = user.email?.split('@')[0] || 'User';
+  const userInitial = displayName.charAt(0).toUpperCase();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
-            {user.username.charAt(0).toUpperCase()}
+            {userInitial}
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.username}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
