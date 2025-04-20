@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -28,17 +29,36 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
     tags: bookmark?.tags?.join(", ") || "",
   });
 
+  // Function to handle URL changes and fetch metadata
   const handleUrlChange = async (url: string) => {
     setFormData(prev => ({ ...prev, url }));
-    if (url && !bookmark) { // Only fetch metadata for new bookmarks
+    if (url && !bookmark && url.startsWith('http')) { // Only fetch metadata for new bookmarks and valid URLs
       try {
         setLoading(true);
+        toast({
+          title: "Info",
+          description: "Fetching metadata from URL...",
+        });
+        
         const metadata = await fetchUrlMetadata(url);
-        setFormData(prev => ({
-          ...prev,
-          title: metadata.title || prev.title,
-          description: metadata.description || prev.description,
-        }));
+        
+        if (metadata.title || metadata.description) {
+          setFormData(prev => ({
+            ...prev,
+            title: metadata.title || prev.title,
+            description: metadata.description || prev.description,
+          }));
+          
+          toast({
+            title: "Success",
+            description: "URL metadata loaded successfully",
+          });
+        } else {
+          toast({
+            title: "Info",
+            description: "Could not extract title from URL",
+          });
+        }
       } catch (error) {
         console.error("Error fetching metadata:", error);
         toast({
@@ -54,7 +74,14 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Error", 
+        description: "You must be logged in to save bookmarks",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -65,7 +92,10 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         source: formData.source,
         tags: formData.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         user_id: user.id,
+        thumbnail: "", // Add default empty thumbnail
       };
+
+      console.log("Saving bookmark with data:", bookmarkData);
 
       if (bookmark) {
         await updateBookmark(bookmark.id, bookmarkData);
@@ -77,11 +107,20 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
       
       onSuccess();
       setOpen(false);
+      
+      // Reset form after successful submission
+      setFormData({
+        url: "",
+        title: "",
+        description: "",
+        source: "twitter" as SocialPlatform,
+        tags: "",
+      });
     } catch (error) {
       console.error("Error saving bookmark:", error);
       toast({
         title: "Error",
-        description: "Failed to save bookmark",
+        description: "Failed to save bookmark: " + (error instanceof Error ? error.message : "Unknown error"),
         variant: "destructive",
       });
     } finally {
@@ -122,6 +161,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
               placeholder="Description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              disabled={loading}
             />
           </div>
           <div>
@@ -130,6 +170,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
               onValueChange={(value: SocialPlatform) => 
                 setFormData(prev => ({ ...prev, source: value }))
               }
+              disabled={loading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select platform" />
@@ -150,10 +191,11 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
               placeholder="Tags (comma-separated)"
               value={formData.tags}
               onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+              disabled={loading}
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setOpen(false)} type="button">
+            <Button variant="outline" onClick={() => setOpen(false)} type="button" disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
