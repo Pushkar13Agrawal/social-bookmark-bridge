@@ -20,9 +20,18 @@ export async function fetchUrlMetadata(url: string) {
 }
 
 export async function createBookmark(bookmark: Omit<Bookmark, 'id' | 'createdAt' | 'updatedAt'>) {
+  // Convert camelCase to snake_case for Supabase
   const { data, error } = await supabase
     .from('bookmarks')
-    .insert([bookmark])
+    .insert({
+      title: bookmark.title,
+      url: bookmark.url,
+      description: bookmark.description,
+      source: bookmark.source,
+      tags: bookmark.tags,
+      thumbnail: bookmark.thumbnail,
+      user_id: bookmark.user_id // Ensure user_id is included
+    })
     .select()
     .single();
 
@@ -31,9 +40,20 @@ export async function createBookmark(bookmark: Omit<Bookmark, 'id' | 'createdAt'
 }
 
 export async function updateBookmark(id: string, bookmark: Partial<Bookmark>) {
+  // Convert camelCase to snake_case for Supabase
+  const bookmarkData: Record<string, any> = {};
+  
+  if (bookmark.title) bookmarkData.title = bookmark.title;
+  if (bookmark.url) bookmarkData.url = bookmark.url;
+  if (bookmark.description) bookmarkData.description = bookmark.description;
+  if (bookmark.source) bookmarkData.source = bookmark.source;
+  if (bookmark.tags) bookmarkData.tags = bookmark.tags;
+  if (bookmark.thumbnail) bookmarkData.thumbnail = bookmark.thumbnail;
+  if (bookmark.user_id) bookmarkData.user_id = bookmark.user_id;
+  
   const { data, error } = await supabase
     .from('bookmarks')
-    .update(bookmark)
+    .update(bookmarkData)
     .eq('id', id)
     .select()
     .single();

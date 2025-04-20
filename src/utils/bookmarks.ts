@@ -9,6 +9,7 @@ export interface Bookmark {
   source: SocialPlatform;
   tags?: string[];
   createdAt: Date;
+  user_id: string; // Add user_id field to match Supabase schema
 }
 
 export type SocialPlatform = 
