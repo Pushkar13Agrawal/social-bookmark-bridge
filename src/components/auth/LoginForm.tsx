@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -24,17 +23,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
 
-  // Login form state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // Register form state
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [generatedUsername, setGeneratedUsername] = useState(generateRandomUsername());
 
-  // Reset password state
   const [resetEmail, setResetEmail] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -115,15 +111,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       
       if (error) throw error;
       
-      if (data.user) {
-        setCurrentUser(data.user);
-        toast({
-          title: "Success",
-          description: `Account created successfully! Your username is ${generatedUsername}`,
-        });
-        onLoginSuccess();
-        navigate("/dashboard");
-      }
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to confirm your account. You may need to check your spam folder.",
+      });
+
+      setActiveTab("login");
+      
     } catch (error) {
       toast({
         title: "Error",

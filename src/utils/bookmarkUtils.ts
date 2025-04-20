@@ -4,43 +4,51 @@ import type { Bookmark, SocialPlatform } from "./bookmarks";
 
 export async function fetchUrlMetadata(url: string) {
   try {
-    // Using allorigins as a CORS proxy with the raw response option
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    // Using allorigins as a CORS proxy with JSON response
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const response = await fetch(proxyUrl);
     
     if (!response.ok) {
       throw new Error('Failed to fetch URL');
     }
     
-    const html = await response.text();
+    const data = await response.json();
+    const html = data.contents;
     
     // Create a DOM parser and parse the HTML content
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Extract metadata with fallbacks
+    // More robust title extraction with multiple fallbacks
     const title = 
       doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-      doc.querySelector('title')?.textContent ||
+      doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
+      doc.querySelector('title')?.textContent?.trim() ||
+      doc.querySelector('h1')?.textContent?.trim() ||
       url;
       
     const description = 
       doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
       doc.querySelector('meta[name="description"]')?.getAttribute('content') ||
+      doc.querySelector('meta[name="twitter:description"]')?.getAttribute('content') ||
       '';
       
     const thumbnail = 
       doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+      doc.querySelector('meta[property="og:image:url"]')?.getAttribute('content') ||
       doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
-      doc.querySelector('meta[property="twitter:image"]')?.getAttribute('content') ||
+      doc.querySelector('link[rel="icon"]')?.getAttribute('href') ||
       '';
 
     console.log('Extracted metadata:', { title, description, thumbnail });
     
-    return { title, description, thumbnail };
+    return { 
+      title: title || url, 
+      description: description || '', 
+      thumbnail: thumbnail || '' 
+    };
   } catch (error) {
     console.error('Error fetching URL metadata:', error);
-    // Return the URL as title if metadata extraction fails
     return { 
       title: url,
       description: '',
