@@ -32,6 +32,7 @@ const mockBookmarks: Bookmark[] = [
     source: "twitter",
     tags: ["react", "javascript", "web-development"],
     createdAt: new Date("2023-05-15"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "2",
@@ -41,6 +42,7 @@ const mockBookmarks: Bookmark[] = [
     source: "facebook",
     tags: ["typescript", "javascript", "programming"],
     createdAt: new Date("2023-06-22"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "3",
@@ -51,6 +53,7 @@ const mockBookmarks: Bookmark[] = [
     source: "instagram",
     tags: ["css", "tailwind", "web-design"],
     createdAt: new Date("2023-07-10"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "4",
@@ -60,6 +63,7 @@ const mockBookmarks: Bookmark[] = [
     source: "linkedin",
     tags: ["web-development", "future", "technology"],
     createdAt: new Date("2023-08-05"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "5",
@@ -69,6 +73,7 @@ const mockBookmarks: Bookmark[] = [
     source: "reddit",
     tags: ["javascript", "programming", "arrays"],
     createdAt: new Date("2023-09-18"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "6",
@@ -78,6 +83,7 @@ const mockBookmarks: Bookmark[] = [
     source: "twitter",
     tags: ["accessibility", "web-development", "a11y"],
     createdAt: new Date("2023-10-12"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "7",
@@ -87,6 +93,7 @@ const mockBookmarks: Bookmark[] = [
     source: "youtube",
     tags: ["graphql", "api", "web-development"],
     createdAt: new Date("2023-11-05"),
+    user_id: "12345", // Added user_id
   },
   {
     id: "8",
@@ -96,6 +103,7 @@ const mockBookmarks: Bookmark[] = [
     source: "pinterest",
     tags: ["css", "web-design", "layout"],
     createdAt: new Date("2023-12-01"),
+    user_id: "12345", // Added user_id
   },
 ];
 
