@@ -1,14 +1,15 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bookmark, SocialPlatform } from "@/utils/bookmarks";
-import { Bookmark as BookmarkIcon, BookmarkMinus, Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Bookmark as BookmarkIcon, BookmarkMinus, Edit, Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import BookmarkFormModal from "./BookmarkFormModal";
 
 interface BookmarkCardProps {
   bookmark: Bookmark;
   onRemove?: (id: string) => void;
+  onEdit?: () => void;
 }
 
 const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
@@ -30,7 +31,7 @@ const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
   }
 };
 
-const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove }) => {
+const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit }) => {
   const { id, title, url, description, thumbnail, source, tags, createdAt } = bookmark;
 
   const handleVisit = () => {
@@ -116,6 +117,15 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove }) => {
               <BookmarkMinus className="h-4 w-4" />
             </Button>
           )}
+          <BookmarkFormModal
+            bookmark={bookmark}
+            onSuccess={onEdit}
+            trigger={
+              <Button variant="outline" size="sm">
+                <Edit className="h-4 w-4" />
+              </Button>
+            }
+          />
           <Button size="sm" onClick={handleVisit}>
             Visit
           </Button>

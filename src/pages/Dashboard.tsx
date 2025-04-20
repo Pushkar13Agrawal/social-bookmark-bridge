@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,8 +7,9 @@ import { useAuth } from "@/context/AuthContext";
 import BookmarkGrid from "@/components/bookmarks/BookmarkGrid";
 import FilterBar from "@/components/bookmarks/FilterBar";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
-import { useToast } from "@/components/ui/use-toast";
-import { Bookmark as BookmarkIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Bookmark as BookmarkIcon, Plus } from "lucide-react";
+import BookmarkFormModal from "@/components/bookmarks/BookmarkFormModal";
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -113,6 +113,14 @@ const Dashboard: React.FC = () => {
     navigate("/login");
   };
 
+  const handleBookmarkSuccess = () => {
+    if (selectedPlatform === "all") {
+      getAllBookmarks().then(setBookmarks);
+    } else {
+      getBookmarksByPlatform(selectedPlatform).then(setBookmarks);
+    }
+  };
+
   if (!user) {
     return null;
   }
@@ -127,6 +135,15 @@ const Dashboard: React.FC = () => {
             <h1 className="text-xl font-bold">Social Bookmark Bridge</h1>
           </div>
           <div className="flex items-center space-x-4">
+            <BookmarkFormModal
+              onSuccess={handleBookmarkSuccess}
+              trigger={
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Bookmark
+                </Button>
+              }
+            />
             <ProfileDropdown user={user} onLogout={handleLogout} />
           </div>
         </div>

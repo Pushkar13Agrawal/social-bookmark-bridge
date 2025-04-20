@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookmarks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          source: Database["public"]["Enums"]["social_platform"]
+          tags: string[] | null
+          thumbnail: string | null
+          title: string
+          updated_at: string | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          source: Database["public"]["Enums"]["social_platform"]
+          tags?: string[] | null
+          thumbnail?: string | null
+          title: string
+          updated_at?: string | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          source?: Database["public"]["Enums"]["social_platform"]
+          tags?: string[] | null
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +56,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      social_platform:
+        | "twitter"
+        | "facebook"
+        | "instagram"
+        | "linkedin"
+        | "youtube"
+        | "reddit"
+        | "pinterest"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +178,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      social_platform: [
+        "twitter",
+        "facebook",
+        "instagram",
+        "linkedin",
+        "youtube",
+        "reddit",
+        "pinterest",
+      ],
+    },
   },
 } as const
