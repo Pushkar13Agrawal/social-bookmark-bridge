@@ -5,14 +5,18 @@ import type { Bookmark, SocialPlatform } from "./bookmarks";
 export async function fetchUrlMetadata(url: string) {
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch URL');
+    }
     const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
     
-    return {
-      title: doc.querySelector('title')?.textContent || '',
-      description: doc.querySelector('meta[name="description"]')?.getAttribute('content') || '',
-      thumbnail: doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || '',
-    };
+    const title = doc.querySelector('title')?.textContent || '';
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+    const thumbnail = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || '';
+    
+    return { title, description, thumbnail };
   } catch (error) {
     console.error('Error fetching URL metadata:', error);
     return { title: '', description: '', thumbnail: '' };

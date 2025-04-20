@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,6 +41,11 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         }));
       } catch (error) {
         console.error("Error fetching metadata:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch URL metadata",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -100,6 +104,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
               placeholder="Enter URL"
               value={formData.url}
               onChange={(e) => handleUrlChange(e.target.value)}
+              disabled={loading}
               required
             />
           </div>
@@ -108,6 +113,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
               placeholder="Title"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              disabled={loading}
               required
             />
           </div>
