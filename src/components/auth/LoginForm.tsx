@@ -9,7 +9,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { loginUser, registerUser, resetPassword, generateRandomUsername } from "@/utils/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { generateRandomUsername } from "@/utils/auth";
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -51,14 +52,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
     
     try {
-      const user = await loginUser(loginEmail, loginPassword);
-      setCurrentUser(user);
-      toast({
-        title: "Success",
-        description: "You have successfully logged in",
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
       });
-      onLoginSuccess();
-      navigate("/dashboard");
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        setCurrentUser(data.user);
+        toast({
+          title: "Success",
+          description: "You have successfully logged in",
+        });
+        onLoginSuccess();
+        navigate("/dashboard");
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -94,14 +103,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
     
     try {
-      const user = await registerUser(registerEmail, registerPassword);
-      setCurrentUser(user);
-      toast({
-        title: "Success",
-        description: `Account created successfully! Your username is ${user.username}`,
+      const { data, error } = await supabase.auth.signUp({
+        email: registerEmail,
+        password: registerPassword,
+        options: {
+          data: {
+            username: generatedUsername,
+          }
+        }
       });
-      onLoginSuccess();
-      navigate("/dashboard");
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        setCurrentUser(data.user);
+        toast({
+          title: "Success",
+          description: `Account created successfully! Your username is ${generatedUsername}`,
+        });
+        onLoginSuccess();
+        navigate("/dashboard");
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -128,7 +150,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
     
     try {
-      await resetPassword(resetEmail);
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Password reset email sent. Please check your inbox.",
+      });
       setShowResetPassword(false);
       setResetEmail("");
     } catch (error) {
