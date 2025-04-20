@@ -4,36 +4,48 @@ import type { Bookmark, SocialPlatform } from "./bookmarks";
 
 export async function fetchUrlMetadata(url: string) {
   try {
-    // Instead of directly fetching the URL (which causes CORS issues),
-    // we'll use a proxy service that handles CORS for us
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    // Using allorigins as a CORS proxy with the raw response option
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     const response = await fetch(proxyUrl);
     
     if (!response.ok) {
       throw new Error('Failed to fetch URL');
     }
     
-    const data = await response.json();
-    
-    if (!data.contents) {
-      throw new Error('No content received from proxy');
-    }
+    const html = await response.text();
     
     // Create a DOM parser and parse the HTML content
     const parser = new DOMParser();
-    const doc = parser.parseFromString(data.contents, 'text/html');
+    const doc = parser.parseFromString(html, 'text/html');
     
-    // Extract metadata
-    const title = doc.querySelector('title')?.textContent || '';
-    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content') || 
-                        doc.querySelector('meta[property="og:description"]')?.getAttribute('content') || '';
-    const thumbnail = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') || 
-                      doc.querySelector('meta[property="twitter:image"]')?.getAttribute('content') || '';
+    // Extract metadata with fallbacks
+    const title = 
+      doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+      doc.querySelector('title')?.textContent ||
+      url;
+      
+    const description = 
+      doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+      doc.querySelector('meta[name="description"]')?.getAttribute('content') ||
+      '';
+      
+    const thumbnail = 
+      doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+      doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
+      doc.querySelector('meta[property="twitter:image"]')?.getAttribute('content') ||
+      '';
+
+    console.log('Extracted metadata:', { title, description, thumbnail });
     
     return { title, description, thumbnail };
   } catch (error) {
     console.error('Error fetching URL metadata:', error);
-    return { title: '', description: '', thumbnail: '' };
+    // Return the URL as title if metadata extraction fails
+    return { 
+      title: url,
+      description: '',
+      thumbnail: ''
+    };
   }
 }
 
