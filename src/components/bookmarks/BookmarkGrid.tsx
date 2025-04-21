@@ -1,7 +1,9 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bookmark } from "@/utils/bookmarks";
 import BookmarkCard from "./BookmarkCard";
+import { hasUserBookmarks } from "@/utils/bookmarkUtils";
+import { useAuth } from "@/context/AuthContext";
 
 interface BookmarkGridProps {
   bookmarks: Bookmark[];
@@ -14,6 +16,15 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({
   onRemoveBookmark,
   isLoading = false 
 }) => {
+  const { user } = useAuth();
+  const [hasBookmarks, setHasBookmarks] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      hasUserBookmarks(user.id).then(setHasBookmarks);
+    }
+  }, [user, bookmarks]);
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -30,9 +41,15 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({
   if (bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <h3 className="text-xl font-semibold mb-2">No bookmarks found</h3>
+        <h3 className="text-xl font-semibold mb-2">
+          {hasBookmarks === false ? 
+            "Welcome! Here are some helpful resources to get you started" :
+            "No bookmarks found"}
+        </h3>
         <p className="text-muted-foreground">
-          Connect your social accounts to start seeing your bookmarks here.
+          {hasBookmarks === false ? 
+            "These examples will disappear once you add your first bookmark" :
+            "Start saving your favorite links by clicking the Add Bookmark button"}
         </p>
       </div>
     );

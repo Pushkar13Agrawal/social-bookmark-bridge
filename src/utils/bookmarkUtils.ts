@@ -1,10 +1,24 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Bookmark, SocialPlatform } from "./bookmarks";
 
 export async function fetchUrlMetadata(url: string) {
   try {
-    // Using allorigins as a CORS proxy with JSON response
+    // First try using link preview API for faster and more reliable results
+    const previewResponse = await fetch(`https://api.linkpreview.net/?q=${encodeURIComponent(url)}`, {
+      method: 'POST',
+      mode: 'cors',
+    });
+
+    if (previewResponse.ok) {
+      const data = await previewResponse.json();
+      return {
+        title: data.title || url,
+        description: data.description || '',
+        thumbnail: data.image || ''
+      };
+    }
+
+    // Fallback to allorigins if link preview fails
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const response = await fetch(proxyUrl);
     
@@ -15,17 +29,16 @@ export async function fetchUrlMetadata(url: string) {
     const data = await response.json();
     const html = data.contents;
     
-    // Create a DOM parser and parse the HTML content
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // More robust title extraction with multiple fallbacks
+    // Enhanced title extraction with better fallbacks
     const title = 
       doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
       doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
       doc.querySelector('title')?.textContent?.trim() ||
       doc.querySelector('h1')?.textContent?.trim() ||
-      url;
+      new URL(url).hostname;
       
     const description = 
       doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
@@ -40,20 +53,28 @@ export async function fetchUrlMetadata(url: string) {
       doc.querySelector('link[rel="icon"]')?.getAttribute('href') ||
       '';
 
-    console.log('Extracted metadata:', { title, description, thumbnail });
-    
     return { 
-      title: title || url, 
+      title: title || new URL(url).hostname,
       description: description || '', 
       thumbnail: thumbnail || '' 
     };
   } catch (error) {
     console.error('Error fetching URL metadata:', error);
-    return { 
-      title: url,
-      description: '',
-      thumbnail: ''
-    };
+    // Return the hostname as title if all extraction methods fail
+    try {
+      const hostname = new URL(url).hostname;
+      return { 
+        title: hostname,
+        description: '',
+        thumbnail: ''
+      };
+    } catch {
+      return { 
+        title: url,
+        description: '',
+        thumbnail: ''
+      };
+    }
   }
 }
 
@@ -103,4 +124,18 @@ export async function updateBookmark(id: string, bookmark: Partial<Bookmark>) {
 
   if (error) throw error;
   return data;
+}
+
+export async function hasUserBookmarks(userId: string): Promise<boolean> {
+  const { count, error } = await supabase
+    .from('bookmarks')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+    
+  if (error) {
+    console.error('Error checking user bookmarks:', error);
+    return false;
+  }
+  
+  return count !== null && count > 0;
 }
