@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import BookmarkGrid from "@/components/bookmarks/BookmarkGrid";
 import FilterBar from "@/components/bookmarks/FilterBar";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
-import { useToast } from "@/hooks/use-toast";
-import { Bookmark as BookmarkIcon, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { Bookmark as BookmarkIcon, Plus, Undo2 } from "lucide-react";
 import BookmarkFormModal from "@/components/bookmarks/BookmarkFormModal";
 
 const Dashboard: React.FC = () => {
@@ -18,17 +17,16 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
+  const [deletedBookmark, setDeletedBookmark] = useState<Bookmark | null>(null);
+  const [undoTimeoutId, setUndoTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  // Fetch bookmarks based on selected platform
   useEffect(() => {
     const fetchBookmarks = async () => {
       if (!user) return;
@@ -46,7 +44,6 @@ const Dashboard: React.FC = () => {
         console.log("Fetched bookmarks:", data);
         setBookmarks(data);
         
-        // If no search query is active, update filtered bookmarks too
         if (!searchQuery.trim()) {
           setFilteredBookmarks(data);
         }
@@ -65,7 +62,6 @@ const Dashboard: React.FC = () => {
     fetchBookmarks();
   }, [user, selectedPlatform, toast]);
 
-  // Handle search filtering
   useEffect(() => {
     const filterBookmarks = async () => {
       if (!searchQuery.trim()) {
@@ -101,23 +97,57 @@ const Dashboard: React.FC = () => {
   };
 
   const handleRemoveBookmark = async (id: string) => {
-    try {
-      const success = await deleteBookmark(id);
-      if (success) {
-        setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
-        setFilteredBookmarks(filteredBookmarks.filter(bookmark => bookmark.id !== id));
-        toast({
-          title: "Success",
-          description: "Bookmark removed successfully",
-        });
+    const bookmarkToDelete = bookmarks.find(b => b.id === id);
+    if (!bookmarkToDelete) return;
+
+    setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
+    setFilteredBookmarks(filteredBookmarks.filter(bookmark => bookmark.id !== id));
+    
+    setDeletedBookmark(bookmarkToDelete);
+
+    if (undoTimeoutId) {
+      clearTimeout(undoTimeoutId);
+    }
+
+    toast.info("Bookmark deleted", {
+      description: "Click undo to restore the bookmark",
+      action: {
+        label: "Undo",
+        onClick: () => handleUndoDelete()
+      },
+      duration: 5000
+    });
+
+    const timeoutId = window.setTimeout(async () => {
+      if (deletedBookmark?.id === id) {
+        try {
+          await deleteBookmark(id);
+          setDeletedBookmark(null);
+        } catch (error) {
+          console.error("Error removing bookmark:", error);
+          toast.error("Failed to remove bookmark");
+          setBookmarks(prev => [...prev, bookmarkToDelete]);
+          setFilteredBookmarks(prev => [...prev, bookmarkToDelete]);
+        }
       }
-    } catch (error) {
-      console.error("Error removing bookmark:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove bookmark",
-        variant: "destructive",
-      });
+    }, 5000);
+
+    setUndoTimeoutId(timeoutId);
+  };
+
+  const handleUndoDelete = () => {
+    if (deletedBookmark) {
+      setBookmarks(prev => [...prev, deletedBookmark]);
+      setFilteredBookmarks(prev => [...prev, deletedBookmark]);
+      
+      setDeletedBookmark(null);
+      
+      if (undoTimeoutId) {
+        clearTimeout(undoTimeoutId);
+        setUndoTimeoutId(null);
+      }
+
+      toast.success("Bookmark restored");
     }
   };
 
@@ -127,7 +157,6 @@ const Dashboard: React.FC = () => {
   };
 
   const handleBookmarkSuccess = () => {
-    // Refetch all bookmarks after creating a new one
     if (selectedPlatform === "all") {
       getAllBookmarks().then(data => {
         setBookmarks(data);
@@ -145,14 +174,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Show loading state while checking authentication
   if (!user) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -174,7 +201,6 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Your Bookmarks</h2>

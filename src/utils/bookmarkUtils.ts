@@ -3,6 +3,22 @@ import type { Bookmark, SocialPlatform } from "./bookmarks";
 
 export async function fetchUrlMetadata(url: string) {
   try {
+    // Special handling for YouTube URLs
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = extractYouTubeVideoId(url);
+      if (videoId) {
+        const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            title: data.title,
+            description: data.author_name ? `By ${data.author_name}` : '',
+            thumbnail: data.thumbnail_url || ''
+          };
+        }
+      }
+    }
+
     // First try using link preview API for faster and more reliable results
     const previewResponse = await fetch(`https://api.linkpreview.net/?q=${encodeURIComponent(url)}`, {
       method: 'POST',
@@ -60,7 +76,6 @@ export async function fetchUrlMetadata(url: string) {
     };
   } catch (error) {
     console.error('Error fetching URL metadata:', error);
-    // Return the hostname as title if all extraction methods fail
     try {
       const hostname = new URL(url).hostname;
       return { 
@@ -76,6 +91,19 @@ export async function fetchUrlMetadata(url: string) {
       };
     }
   }
+}
+
+function extractYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+
+  return null;
 }
 
 export async function createBookmark(bookmark: Omit<Bookmark, 'id' | 'createdAt' | 'updatedAt'>) {
