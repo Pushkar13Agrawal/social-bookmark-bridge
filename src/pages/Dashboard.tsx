@@ -21,14 +21,18 @@ const Dashboard: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
+  // Fetch bookmarks based on selected platform
   useEffect(() => {
     const fetchBookmarks = async () => {
+      if (!user) return;
+      
       setIsLoading(true);
       try {
         let data: Bookmark[];
@@ -39,9 +43,15 @@ const Dashboard: React.FC = () => {
           data = await getBookmarksByPlatform(selectedPlatform);
         }
         
+        console.log("Fetched bookmarks:", data);
         setBookmarks(data);
-        setFilteredBookmarks(data);
+        
+        // If no search query is active, update filtered bookmarks too
+        if (!searchQuery.trim()) {
+          setFilteredBookmarks(data);
+        }
       } catch (error) {
+        console.error("Error fetching bookmarks:", error);
         toast({
           title: "Error",
           description: "Failed to fetch bookmarks",
@@ -52,11 +62,10 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    if (user) {
-      fetchBookmarks();
-    }
+    fetchBookmarks();
   }, [user, selectedPlatform, toast]);
 
+  // Handle search filtering
   useEffect(() => {
     const filterBookmarks = async () => {
       if (!searchQuery.trim()) {
@@ -69,6 +78,7 @@ const Dashboard: React.FC = () => {
         const results = await searchBookmarks(searchQuery);
         setFilteredBookmarks(results);
       } catch (error) {
+        console.error("Error searching bookmarks:", error);
         toast({
           title: "Error",
           description: "Failed to search bookmarks",
@@ -92,14 +102,17 @@ const Dashboard: React.FC = () => {
 
   const handleRemoveBookmark = async (id: string) => {
     try {
-      await deleteBookmark(id);
-      setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
-      setFilteredBookmarks(filteredBookmarks.filter(bookmark => bookmark.id !== id));
-      toast({
-        title: "Success",
-        description: "Bookmark removed successfully",
-      });
+      const success = await deleteBookmark(id);
+      if (success) {
+        setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
+        setFilteredBookmarks(filteredBookmarks.filter(bookmark => bookmark.id !== id));
+        toast({
+          title: "Success",
+          description: "Bookmark removed successfully",
+        });
+      }
     } catch (error) {
+      console.error("Error removing bookmark:", error);
       toast({
         title: "Error",
         description: "Failed to remove bookmark",
@@ -114,13 +127,25 @@ const Dashboard: React.FC = () => {
   };
 
   const handleBookmarkSuccess = () => {
+    // Refetch all bookmarks after creating a new one
     if (selectedPlatform === "all") {
-      getAllBookmarks().then(setBookmarks);
+      getAllBookmarks().then(data => {
+        setBookmarks(data);
+        if (!searchQuery.trim()) {
+          setFilteredBookmarks(data);
+        }
+      });
     } else {
-      getBookmarksByPlatform(selectedPlatform).then(setBookmarks);
+      getBookmarksByPlatform(selectedPlatform).then(data => {
+        setBookmarks(data);
+        if (!searchQuery.trim()) {
+          setFilteredBookmarks(data);
+        }
+      });
     }
   };
 
+  // Show loading state while checking authentication
   if (!user) {
     return null;
   }

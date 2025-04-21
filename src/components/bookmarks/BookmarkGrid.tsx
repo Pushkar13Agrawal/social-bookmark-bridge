@@ -48,8 +48,8 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({
         </h3>
         <p className="text-muted-foreground">
           {hasBookmarks === false ? 
-            "These examples will disappear once you add your first bookmark" :
-            "Start saving your favorite links by clicking the Add Bookmark button"}
+            "Start saving your favorite links by clicking the Add Bookmark button" :
+            "Add a bookmark or try different filter options"}
         </p>
       </div>
     );
