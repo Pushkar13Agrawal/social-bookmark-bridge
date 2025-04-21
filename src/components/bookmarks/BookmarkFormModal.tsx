@@ -1,14 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Bookmark, SocialPlatform } from "@/utils/bookmarks";
-import { fetchUrlMetadata, createBookmark, updateBookmark } from "@/utils/bookmarkUtils";
+import { Bookmark } from "@/utils/bookmarks";
+import { createBookmark, updateBookmark } from "@/utils/bookmarkUtils";
 import { useAuth } from "@/context/AuthContext";
+import { BookmarkForm } from "./form/BookmarkForm";
 
 interface BookmarkFormModalProps {
   bookmark?: Bookmark;
@@ -25,60 +22,17 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
     url: bookmark?.url || "",
     title: bookmark?.title || "",
     description: bookmark?.description || "",
-    source: bookmark?.source || "twitter" as SocialPlatform,
+    source: bookmark?.source || "twitter",
     tags: bookmark?.tags?.join(", ") || "",
   });
-
-  // Function to handle URL changes and fetch metadata
-  const handleUrlChange = async (url: string) => {
-    setFormData(prev => ({ ...prev, url }));
-    if (url && !bookmark && url.startsWith('http')) { // Only fetch metadata for new bookmarks and valid URLs
-      try {
-        setLoading(true);
-        toast({
-          title: "Info",
-          description: "Fetching metadata from URL...",
-        });
-        
-        const metadata = await fetchUrlMetadata(url);
-        
-        if (metadata.title || metadata.description) {
-          setFormData(prev => ({
-            ...prev,
-            title: metadata.title || prev.title,
-            description: metadata.description || prev.description,
-          }));
-          
-          toast({
-            title: "Success",
-            description: "URL metadata loaded successfully",
-          });
-        } else {
-          toast({
-            title: "Info",
-            description: "Could not extract title from URL",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching metadata:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch URL metadata",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "You must be logged in to save bookmarks",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -92,10 +46,8 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         source: formData.source,
         tags: formData.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         user_id: user.id,
-        thumbnail: "", // Add default empty thumbnail
+        thumbnail: "",
       };
-
-      console.log("Saving bookmark with data:", bookmarkData);
 
       if (bookmark) {
         await updateBookmark(bookmark.id, bookmarkData);
@@ -107,13 +59,11 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
       
       onSuccess();
       setOpen(false);
-      
-      // Reset form after successful submission
       setFormData({
         url: "",
         title: "",
         description: "",
-        source: "twitter" as SocialPlatform,
+        source: "twitter",
         tags: "",
       });
     } catch (error) {
@@ -137,72 +87,14 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         <DialogHeader>
           <DialogTitle>{bookmark ? "Edit Bookmark" : "Add New Bookmark"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Input
-              placeholder="Enter URL"
-              value={formData.url}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              disabled={loading}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              placeholder="Title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              disabled={loading}
-              required
-            />
-          </div>
-          <div>
-            <Textarea
-              placeholder="Description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              disabled={loading}
-            />
-          </div>
-          <div>
-            <Select
-              value={formData.source}
-              onValueChange={(value: SocialPlatform) => 
-                setFormData(prev => ({ ...prev, source: value }))
-              }
-              disabled={loading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="twitter">Twitter</SelectItem>
-                <SelectItem value="facebook">Facebook</SelectItem>
-                <SelectItem value="instagram">Instagram</SelectItem>
-                <SelectItem value="linkedin">LinkedIn</SelectItem>
-                <SelectItem value="youtube">YouTube</SelectItem>
-                <SelectItem value="reddit">Reddit</SelectItem>
-                <SelectItem value="pinterest">Pinterest</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Input
-              placeholder="Tags (comma-separated)"
-              value={formData.tags}
-              onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-              disabled={loading}
-            />
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setOpen(false)} type="button" disabled={loading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : bookmark ? "Update" : "Save"}
-            </Button>
-          </div>
-        </form>
+        <BookmarkForm
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleSubmit}
+          onClose={() => setOpen(false)}
+          loading={loading}
+          isEdit={!!bookmark}
+        />
       </DialogContent>
     </Dialog>
   );
