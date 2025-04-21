@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
@@ -253,11 +256,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="login-password"
-                      type="password"
+                      type={showLoginPassword ? "text" : "password"}
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-10 w-10 px-3 py-2"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    >
+                      {showLoginPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="sr-only">
+                        {showLoginPassword ? "Hide password" : "Show password"}
+                      </span>
+                    </Button>
                   </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -307,11 +326,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="register-password"
-                      type="password"
+                      type={showRegisterPassword ? "text" : "password"}
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-10 w-10 px-3 py-2"
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    >
+                      {showRegisterPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="sr-only">
+                        {showRegisterPassword ? "Hide password" : "Show password"}
+                      </span>
+                    </Button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -320,11 +355,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="confirm-password"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-10 w-10 px-3 py-2"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="sr-only">
+                        {showConfirmPassword ? "Hide password" : "Show password"}
+                      </span>
+                    </Button>
                   </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
