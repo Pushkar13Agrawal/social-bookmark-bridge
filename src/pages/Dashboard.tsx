@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -174,18 +173,21 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-2 sm:px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BookmarkIcon className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold">Social Bookmark Bridge</h1>
+            <h1 className="text-lg sm:text-xl font-bold whitespace-nowrap">
+              Social Bookmark Bridge
+            </h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <BookmarkFormModal
               onSuccess={handleBookmarkSuccess}
               trigger={
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Bookmark
+                <Button className="px-2 sm:px-4 py-2 text-xs sm:text-sm">
+                  <Plus className="mr-1 h-4 w-4" />
+                  <span className="hidden sm:inline">Add Bookmark</span>
+                  <span className="inline sm:hidden">Add</span>
                 </Button>
               }
             />
@@ -194,10 +196,12 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Your Bookmarks</h2>
-          <p className="text-muted-foreground">
+      <main className="container mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
+            Your Bookmarks
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage all your saved content from across the web
           </p>
         </div>

@@ -20,52 +20,52 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onSearchChange,
 }) => {
   return (
-    <div className="mb-6">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+    <div className="mb-4 sm:mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <Tabs 
           value={selectedPlatform} 
           onValueChange={(value) => onPlatformChange(value as SocialPlatform | "all")}
-          className="w-full md:w-auto"
+          className="w-full sm:w-auto"
         >
-          <TabsList className="grid grid-cols-4 md:grid-cols-7 w-full md:w-auto">
-            <TabsTrigger value="all" className="flex items-center gap-1">
+          <TabsList className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-7 w-full sm:w-auto">
+            <TabsTrigger value="all" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Bookmark className="h-4 w-4" />
-              <span className="hidden md:inline">All</span>
+              <span className="hidden sm:inline">All</span>
             </TabsTrigger>
-            <TabsTrigger value="twitter" className="flex items-center gap-1">
+            <TabsTrigger value="twitter" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Twitter className="h-4 w-4" />
-              <span className="hidden md:inline">Twitter</span>
+              <span className="hidden sm:inline">Twitter</span>
             </TabsTrigger>
-            <TabsTrigger value="facebook" className="flex items-center gap-1">
+            <TabsTrigger value="facebook" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Facebook className="h-4 w-4" />
-              <span className="hidden md:inline">Facebook</span>
+              <span className="hidden sm:inline">Facebook</span>
             </TabsTrigger>
-            <TabsTrigger value="instagram" className="flex items-center gap-1">
+            <TabsTrigger value="instagram" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Instagram className="h-4 w-4" />
-              <span className="hidden md:inline">Instagram</span>
+              <span className="hidden sm:inline">Instagram</span>
             </TabsTrigger>
-            <TabsTrigger value="linkedin" className="flex items-center gap-1">
+            <TabsTrigger value="linkedin" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Linkedin className="h-4 w-4" />
-              <span className="hidden md:inline">LinkedIn</span>
+              <span className="hidden sm:inline">LinkedIn</span>
             </TabsTrigger>
-            <TabsTrigger value="youtube" className="flex items-center gap-1">
+            <TabsTrigger value="youtube" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Youtube className="h-4 w-4" />
-              <span className="hidden md:inline">YouTube</span>
+              <span className="hidden sm:inline">YouTube</span>
             </TabsTrigger>
-            <TabsTrigger value="reddit" className="flex items-center gap-1">
+            <TabsTrigger value="reddit" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Bookmark className="h-4 w-4" />
-              <span className="hidden md:inline">Reddit</span>
+              <span className="hidden sm:inline">Reddit</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
         
-        <div className="flex w-full md:w-64 relative">
+        <div className="flex w-full sm:w-64 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search bookmarks..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 w-full"
+            className="pl-9 w-full py-2 text-xs sm:text-sm"
           />
         </div>
       </div>
