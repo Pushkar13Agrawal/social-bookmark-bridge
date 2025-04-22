@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,18 +50,14 @@ const Dashboard: React.FC = () => {
         }
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch bookmarks",
-          variant: "destructive",
-        });
+        toast.error("Failed to fetch bookmarks");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBookmarks();
-  }, [user, selectedPlatform, toast]);
+  }, [user, selectedPlatform]);
 
   useEffect(() => {
     const filterBookmarks = async () => {
@@ -75,18 +72,14 @@ const Dashboard: React.FC = () => {
         setFilteredBookmarks(results);
       } catch (error) {
         console.error("Error searching bookmarks:", error);
-        toast({
-          title: "Error",
-          description: "Failed to search bookmarks",
-          variant: "destructive",
-        });
+        toast.error("Failed to search bookmarks");
       } finally {
         setIsLoading(false);
       }
     };
 
     filterBookmarks();
-  }, [searchQuery, bookmarks, toast]);
+  }, [searchQuery, bookmarks]);
 
   const handlePlatformChange = (platform: SocialPlatform | "all") => {
     setSelectedPlatform(platform);
