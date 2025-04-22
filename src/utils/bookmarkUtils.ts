@@ -122,7 +122,7 @@ export async function createBookmark(bookmark: Omit<Bookmark, 'id' | 'createdAt'
       source: bookmark.source,
       tags: bookmark.tags,
       thumbnail: bookmark.thumbnail,
-      user_id: bookmark.user_id // Ensure user_id is included
+      user_id: bookmark.user_id
     })
     .select()
     .single();

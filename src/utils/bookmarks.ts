@@ -1,4 +1,3 @@
-
 // Types
 export interface Bookmark {
   id: string;
@@ -25,6 +24,7 @@ export type SocialPlatform =
   | "others";
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
 // Get all bookmarks
 export const getAllBookmarks = async (): Promise<Bookmark[]> => {
