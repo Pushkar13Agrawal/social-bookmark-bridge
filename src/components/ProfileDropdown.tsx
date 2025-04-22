@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings } from "lucide-react";
 import { User as UserType } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileDropdownProps {
   user: UserType;
@@ -21,6 +22,7 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
   // Get display name from user email or metadata
   const displayName = user.email?.split('@')[0] || 'User';
   const userInitial = displayName.charAt(0).toUpperCase();
+  const navigate = useNavigate();
 
   return (
     <DropdownMenu>
@@ -41,11 +43,11 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("/settings")}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
