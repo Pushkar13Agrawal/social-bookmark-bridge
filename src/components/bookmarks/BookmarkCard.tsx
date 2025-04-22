@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bookmark, SocialPlatform } from "@/utils/bookmarks";
-import { Bookmark as BookmarkIcon, BookmarkMinus, Edit, Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Bookmark as BookmarkIcon, BookmarkMinus, Edit, Facebook, Instagram, Linkedin, Twitter, Youtube, MessageSquareHeart, MessageSquare } from "lucide-react";
 import BookmarkFormModal from "./BookmarkFormModal";
 
 interface BookmarkCardProps {
@@ -12,6 +13,7 @@ interface BookmarkCardProps {
   onEdit?: () => void;
 }
 
+// Added icons for new platforms
 const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
   const iconProps = { className: "h-4 w-4 mr-1" };
   
@@ -26,6 +28,10 @@ const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
       return <Linkedin {...iconProps} />;
     case "youtube":
       return <Youtube {...iconProps} />;
+    case "chatgpt":
+      return <MessageSquareHeart {...iconProps} />;
+    case "others":
+      return <MessageSquare {...iconProps} />;
     default:
       return <BookmarkIcon {...iconProps} />;
   }
@@ -62,6 +68,8 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
               source === "instagram" ? "bg-bookmark-instagram" :
               source === "linkedin" ? "bg-bookmark-linkedin" :
               source === "youtube" ? "bg-bookmark-youtube" :
+              source === "chatgpt" ? "bg-green-500" :
+              source === "others" ? "bg-neutral-400" :
               ""
             }`}
           >
@@ -72,7 +80,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
       )}
       <CardHeader className={thumbnail ? "pt-3" : "pt-5"}>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-bold line-clamp-1">{title}</CardTitle>
+          <CardTitle className="text-lg font-bold line-clamp-1 break-words">{title}</CardTitle>
           {!thumbnail && (
             <Badge 
               className={`${
@@ -81,6 +89,8 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
                 source === "instagram" ? "bg-bookmark-instagram" :
                 source === "linkedin" ? "bg-bookmark-linkedin" :
                 source === "youtube" ? "bg-bookmark-youtube" :
+                source === "chatgpt" ? "bg-green-500" :
+                source === "others" ? "bg-neutral-400" :
                 ""
               }`}
             >
@@ -89,7 +99,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
             </Badge>
           )}
         </div>
-        <CardDescription className="line-clamp-2 mt-1">
+        <CardDescription className="line-clamp-2 mt-1 break-words">
           {description || "No description available"}
         </CardDescription>
       </CardHeader>

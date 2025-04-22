@@ -12,6 +12,7 @@ export interface Bookmark {
   user_id: string;
 }
 
+// Added "chatgpt" and "others" here
 export type SocialPlatform = 
   | "twitter" 
   | "facebook" 
@@ -19,7 +20,9 @@ export type SocialPlatform =
   | "linkedin" 
   | "youtube" 
   | "reddit" 
-  | "pinterest";
+  | "pinterest"
+  | "chatgpt"
+  | "others";
 
 import { supabase } from "@/integrations/supabase/client";
 

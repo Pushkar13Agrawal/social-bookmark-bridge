@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SocialPlatform } from "@/utils/bookmarks";
-import { Facebook, Twitter, Instagram, Linkedin, Youtube, Bookmark, Search } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Youtube, Bookmark, Search, MessageSquareHeart, MessageSquare } from "lucide-react";
 
 interface FilterBarProps {
   selectedPlatform: SocialPlatform | "all";
@@ -27,7 +27,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           onValueChange={(value) => onPlatformChange(value as SocialPlatform | "all")}
           className="w-full sm:w-auto"
         >
-          <TabsList className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-7 w-full sm:w-auto">
+          <TabsList className="grid grid-cols-2 xs:grid-cols-4 md:grid-cols-7 lg:grid-cols-9 w-full sm:w-auto">
             <TabsTrigger value="all" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Bookmark className="h-4 w-4" />
               <span className="hidden sm:inline">All</span>
@@ -55,6 +55,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <TabsTrigger value="reddit" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
               <Bookmark className="h-4 w-4" />
               <span className="hidden sm:inline">Reddit</span>
+            </TabsTrigger>
+            <TabsTrigger value="chatgpt" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
+              <MessageSquareHeart className="h-4 w-4" />
+              <span className="hidden sm:inline">Chat GPT</span>
+            </TabsTrigger>
+            <TabsTrigger value="others" className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Others</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
