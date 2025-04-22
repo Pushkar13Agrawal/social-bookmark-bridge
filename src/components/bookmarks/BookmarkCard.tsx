@@ -4,7 +4,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bookmark, SocialPlatform } from "@/utils/bookmarks";
-import { Bookmark as BookmarkIcon, BookmarkMinus, Edit, Facebook, Instagram, Linkedin, Twitter, Youtube, MessageSquareHeart, MessageSquare } from "lucide-react";
+import { 
+  Bookmark as BookmarkIcon, 
+  BookmarkMinus, 
+  Edit, 
+  Facebook, 
+  Instagram, 
+  Linkedin, 
+  Twitter, 
+  Youtube, 
+  MessageSquareHeart, 
+  MessageSquare,
+  Reddit // updated to use lucide-react's Reddit icon
+} from "lucide-react";
 import BookmarkFormModal from "./BookmarkFormModal";
 
 interface BookmarkCardProps {
@@ -28,6 +40,8 @@ const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
       return <Linkedin {...iconProps} />;
     case "youtube":
       return <Youtube {...iconProps} />;
+    case "reddit":
+      return <Reddit {...iconProps} />;
     case "chatgpt":
       return <MessageSquareHeart {...iconProps} />;
     case "others":
@@ -68,6 +82,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
               source === "instagram" ? "bg-bookmark-instagram" :
               source === "linkedin" ? "bg-bookmark-linkedin" :
               source === "youtube" ? "bg-bookmark-youtube" :
+              source === "reddit" ? "bg-bookmark-reddit" :
               source === "chatgpt" ? "bg-green-500" :
               source === "others" ? "bg-neutral-400" :
               ""
@@ -89,6 +104,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onRemove, onEdit 
                 source === "instagram" ? "bg-bookmark-instagram" :
                 source === "linkedin" ? "bg-bookmark-linkedin" :
                 source === "youtube" ? "bg-bookmark-youtube" :
+                source === "reddit" ? "bg-bookmark-reddit" :
                 source === "chatgpt" ? "bg-green-500" :
                 source === "others" ? "bg-neutral-400" :
                 ""

@@ -12,6 +12,7 @@ import {
 import { User, LogOut, Settings } from "lucide-react";
 import { User as UserType } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProfileDropdownProps {
   user: UserType;
@@ -24,13 +25,17 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
   const userInitial = displayName.charAt(0).toUpperCase();
   const navigate = useNavigate();
 
+  // Try to get a user avatar if available, otherwise fallback to initial
+  const avatarUrl = user.user_metadata?.avatar_url || "";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
-            {userInitial}
-          </div>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+          <Avatar>
+            <AvatarImage src={avatarUrl} alt={displayName} />
+            <AvatarFallback>{userInitial}</AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

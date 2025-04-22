@@ -31,6 +31,8 @@ export const PlatformSelect: React.FC<PlatformSelectProps> = ({
         <SelectItem value="youtube">YouTube</SelectItem>
         <SelectItem value="reddit">Reddit</SelectItem>
         <SelectItem value="pinterest">Pinterest</SelectItem>
+        <SelectItem value="chatgpt">ChatGPT</SelectItem>
+        <SelectItem value="others">Others</SelectItem>
       </SelectContent>
     </Select>
   );
