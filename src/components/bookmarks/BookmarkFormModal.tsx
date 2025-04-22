@@ -6,6 +6,7 @@ import { Bookmark } from "@/utils/bookmarks";
 import { createBookmark, updateBookmark } from "@/utils/bookmarkUtils";
 import { useAuth } from "@/context/AuthContext";
 import { BookmarkForm } from "./form/BookmarkForm";
+import { Button } from "@/components/ui/button";
 
 interface BookmarkFormModalProps {
   bookmark?: Bookmark;
