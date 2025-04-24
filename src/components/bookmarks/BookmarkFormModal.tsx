@@ -7,6 +7,7 @@ import { createBookmark, updateBookmark } from "@/utils/bookmarkUtils";
 import { useAuth } from "@/context/AuthContext";
 import { BookmarkForm } from "./form/BookmarkForm";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BookmarkFormModalProps {
   bookmark?: Bookmark;
@@ -25,6 +26,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
     description: bookmark?.description || "",
     source: bookmark?.source || "twitter",
     tags: bookmark?.tags?.join(", ") || "",
+    reminderDate: undefined as Date | undefined,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,13 +52,37 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         thumbnail: "",
       };
 
+      let bookmarkResult;
       if (bookmark) {
-        await updateBookmark(bookmark.id, bookmarkData);
-        toast({ title: "Success", description: "Bookmark updated successfully" });
+        bookmarkResult = await updateBookmark(bookmark.id, bookmarkData);
       } else {
-        await createBookmark(bookmarkData);
-        toast({ title: "Success", description: "Bookmark created successfully" });
+        bookmarkResult = await createBookmark(bookmarkData);
       }
+
+      // If a reminder date is set, create a reminder
+      if (formData.reminderDate && bookmarkResult) {
+        const { error: reminderError } = await supabase
+          .from('bookmark_reminders')
+          .insert({
+            bookmark_id: bookmarkResult.id,
+            user_id: user.id,
+            reminder_time: formData.reminderDate.toISOString(),
+          });
+
+        if (reminderError) {
+          console.error("Error creating reminder:", reminderError);
+          toast({
+            title: "Warning",
+            description: "Bookmark saved but failed to set reminder",
+            variant: "destructive",
+          });
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `Bookmark ${bookmark ? "updated" : "created"} successfully${formData.reminderDate ? " with reminder" : ""}`,
+      });
       
       onSuccess();
       setOpen(false);
@@ -66,6 +92,7 @@ export default function BookmarkFormModal({ bookmark, onSuccess, trigger }: Book
         description: "",
         source: "twitter",
         tags: "",
+        reminderDate: undefined,
       });
     } catch (error) {
       console.error("Error saving bookmark:", error);

@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bookmark_reminders: {
+        Row: {
+          bookmark_id: string
+          created_at: string | null
+          id: string
+          notification_sent: boolean | null
+          reminder_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bookmark_id: string
+          created_at?: string | null
+          id?: string
+          notification_sent?: boolean | null
+          reminder_time: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bookmark_id?: string
+          created_at?: string | null
+          id?: string
+          notification_sent?: boolean | null
+          reminder_time?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmark_reminders_bookmark_id_fkey"
+            columns: ["bookmark_id"]
+            isOneToOne: false
+            referencedRelation: "bookmarks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookmarks: {
         Row: {
           created_at: string | null

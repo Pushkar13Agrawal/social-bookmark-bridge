@@ -1,10 +1,10 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { BookmarkUrlField } from "./BookmarkUrlField";
 import { PlatformSelect } from "./PlatformSelect";
+import { BookmarkReminderPicker } from "./BookmarkReminderPicker";
 import { SocialPlatform } from "@/utils/bookmarks";
 
 interface BookmarkFormProps {
@@ -14,6 +14,7 @@ interface BookmarkFormProps {
     description: string;
     source: SocialPlatform;
     tags: string;
+    reminderDate?: Date;
   };
   setFormData: (data: any) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -81,6 +82,12 @@ export const BookmarkForm: React.FC<BookmarkFormProps> = ({
           disabled={loading}
         />
       </div>
+      <BookmarkReminderPicker
+        reminderDate={formData.reminderDate}
+        onDateChange={(date) => setFormData(prev => ({ ...prev, reminderDate: date }))}
+        disabled={loading}
+      />
+
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={onClose} type="button" disabled={loading}>
           Cancel
