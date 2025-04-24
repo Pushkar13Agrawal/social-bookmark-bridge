@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ import {
   Youtube, 
   MessageSquareHeart, 
   MessageSquare,
-  Reddit // updated to use lucide-react's Reddit icon
+  Circle 
 } from "lucide-react";
 import BookmarkFormModal from "./BookmarkFormModal";
 
@@ -25,7 +24,6 @@ interface BookmarkCardProps {
   onEdit?: () => void;
 }
 
-// Added icons for new platforms
 const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
   const iconProps = { className: "h-4 w-4 mr-1" };
   
@@ -41,7 +39,7 @@ const PlatformIcon: React.FC<{ platform: SocialPlatform }> = ({ platform }) => {
     case "youtube":
       return <Youtube {...iconProps} />;
     case "reddit":
-      return <Reddit {...iconProps} />;
+      return <Circle {...iconProps} />;
     case "chatgpt":
       return <MessageSquareHeart {...iconProps} />;
     case "others":
