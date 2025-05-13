@@ -124,3 +124,33 @@ const transformBookmarkData = (item: any): Bookmark => {
     user_id: item.user_id
   };
 };
+
+// Delete default bookmarks
+export const deleteDefaultBookmarks = async (userId: string): Promise<boolean> => {
+  try {
+    // The default bookmarks are the ones created when a user first signs up
+    // They have specific URLs from the template sites
+    const defaultUrls = [
+      'https://react.dev/learn',
+      'https://www.typescriptlang.org/docs/',
+      'https://tailwindcss.com/docs/installation',
+      'https://roadmap.sh/frontend'
+    ];
+    
+    const { error } = await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', userId)
+      .in('url', defaultUrls);
+    
+    if (error) {
+      console.error('Error deleting default bookmarks:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteDefaultBookmarks:', error);
+    return false;
+  }
+};

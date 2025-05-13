@@ -167,3 +167,42 @@ export async function hasUserBookmarks(userId: string): Promise<boolean> {
   
   return count !== null && count > 0;
 }
+
+// Add new function to check if all bookmarks are default ones
+export async function hasOnlyDefaultBookmarks(userId: string): Promise<boolean> {
+  try {
+    // Get all bookmarks for the user
+    const { data, error } = await supabase
+      .from('bookmarks')
+      .select('url')
+      .eq('user_id', userId);
+      
+    if (error) {
+      console.error('Error checking default bookmarks:', error);
+      return false;
+    }
+    
+    if (!data || data.length === 0) {
+      return true; // No bookmarks at all
+    }
+    
+    // The default bookmarks created by the add_default_bookmarks function
+    const defaultUrls = [
+      'https://react.dev/learn',
+      'https://www.typescriptlang.org/docs/',
+      'https://tailwindcss.com/docs/installation',
+      'https://roadmap.sh/frontend'
+    ];
+    
+    // If the user has exactly 4 bookmarks and they're all defaults
+    if (data.length === defaultUrls.length) {
+      const userUrls = data.map(b => b.url);
+      return defaultUrls.every(url => userUrls.includes(url));
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error in hasOnlyDefaultBookmarks:', error);
+    return false;
+  }
+}

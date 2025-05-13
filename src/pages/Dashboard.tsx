@@ -1,7 +1,16 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { getAllBookmarks, getBookmarksByPlatform, searchBookmarks, deleteBookmark, Bookmark, SocialPlatform } from "@/utils/bookmarks";
+import { 
+  getAllBookmarks, 
+  getBookmarksByPlatform, 
+  searchBookmarks, 
+  deleteBookmark, 
+  Bookmark, 
+  SocialPlatform,
+  deleteDefaultBookmarks
+} from "@/utils/bookmarks";
 import { useAuth } from "@/context/AuthContext";
 import BookmarkGrid from "@/components/bookmarks/BookmarkGrid";
 import FilterBar from "@/components/bookmarks/FilterBar";
@@ -9,6 +18,7 @@ import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { toast } from "sonner";
 import { Bookmark as BookmarkIcon, Plus, Undo2 } from "lucide-react";
 import BookmarkFormModal from "@/components/bookmarks/BookmarkFormModal";
+import { DefaultBookmarksDialog } from "@/components/bookmarks/DefaultBookmarksDialog";
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -19,6 +29,8 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [deletedBookmark, setDeletedBookmark] = useState<Bookmark | null>(null);
   const [undoTimeoutId, setUndoTimeoutId] = useState<number | null>(null);
+  const [showDefaultDialog, setShowDefaultDialog] = useState(false);
+  const [userAddedBookmark, setUserAddedBookmark] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -149,6 +161,15 @@ const Dashboard: React.FC = () => {
   };
 
   const handleBookmarkSuccess = () => {
+    // Only show the default bookmarks dialog if this is the user's first bookmark
+    // We determine this by checking if they only have the default bookmarks
+    const isFirstUserBookmark = !userAddedBookmark && bookmarks.length === 4;
+    
+    if (isFirstUserBookmark) {
+      setUserAddedBookmark(true);
+      setShowDefaultDialog(true);
+    }
+    
     if (selectedPlatform === "all") {
       getAllBookmarks().then(data => {
         setBookmarks(data);
@@ -164,6 +185,33 @@ const Dashboard: React.FC = () => {
         }
       });
     }
+  };
+
+  const handleDeleteDefaultBookmarks = async () => {
+    if (!user) return;
+    
+    try {
+      await deleteDefaultBookmarks(user.id);
+      
+      // Refresh bookmarks list after deletion
+      const updatedBookmarks = await getAllBookmarks();
+      setBookmarks(updatedBookmarks);
+      if (!searchQuery.trim()) {
+        setFilteredBookmarks(updatedBookmarks);
+      }
+      
+      toast.success("Default bookmarks removed successfully");
+    } catch (error) {
+      console.error("Failed to delete default bookmarks:", error);
+      toast.error("Failed to delete default bookmarks");
+    } finally {
+      setShowDefaultDialog(false);
+    }
+  };
+
+  const handleKeepDefaultBookmarks = () => {
+    setShowDefaultDialog(false);
+    toast.success("Default bookmarks kept");
   };
 
   if (!user) {
@@ -217,6 +265,13 @@ const Dashboard: React.FC = () => {
           bookmarks={filteredBookmarks}
           onRemoveBookmark={handleRemoveBookmark}
           isLoading={isLoading}
+        />
+        
+        <DefaultBookmarksDialog
+          open={showDefaultDialog}
+          onOpenChange={setShowDefaultDialog}
+          onConfirm={handleDeleteDefaultBookmarks}
+          onCancel={handleKeepDefaultBookmarks}
         />
       </main>
     </div>
