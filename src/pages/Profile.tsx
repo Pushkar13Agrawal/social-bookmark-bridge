@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { resetPassword } from "@/utils/auth";
 
 const Profile = () => {
   const { user, setCurrentUser } = useAuth();
@@ -17,6 +18,7 @@ const Profile = () => {
   const [password, setPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -77,6 +79,35 @@ const Profile = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Error",
+        description: "Unable to find your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      await resetPassword(user.email);
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your email for a link to reset your password.",
+      });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send reset email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container py-8">
@@ -134,6 +165,22 @@ const Profile = () => {
         </div>
         <Button type="submit">Update Password</Button>
       </form>
+
+      <div className="mt-8 pt-6 border-t">
+        <h3 className="text-lg font-semibold mb-3">Forgot your password?</h3>
+        <p className="text-sm text-gray-500 mb-3">
+          Click the button below to receive a password reset link in your email.
+        </p>
+        <Button 
+          variant="outline" 
+          onClick={handleResetPassword} 
+          disabled={isResetting}
+          className="w-full"
+        >
+          {isResetting ? "Sending Reset Link..." : "Send Password Reset Link"}
+        </Button>
+      </div>
+      
       <Button variant="outline" className="mt-4" onClick={() => navigate("/dashboard")}>Back to Dashboard</Button>
     </div>
   );
