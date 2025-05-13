@@ -4,20 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Profile = () => {
   const { user, setCurrentUser } = useAuth();
   const [name, setName] = useState(user?.user_metadata?.full_name || "");
   const [profilePic, setProfilePic] = useState<string>("");
   const [password, setPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleNameChange = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you should make a request to update the user's name using supabase
-    toast.success("Name updated successfully!");
+    toast({
+      title: "Success",
+      description: "Name updated successfully!",
+    });
     setCurrentUser({ ...user!, user_metadata: { ...user!.user_metadata, full_name: name } });
   };
 
@@ -26,14 +35,46 @@ const Profile = () => {
     if (!file) return;
     // Here you can upload to storage, etc.
     setProfilePic(URL.createObjectURL(file));
-    toast.success("Profile picture updated! (Simulated)");
+    toast({
+      title: "Success",
+      description: "Profile picture updated! (Simulated)",
+    });
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Use Supabase to update password (e.g., supabase.auth.updateUser)
-    setPassword("");
-    toast.success("Password updated successfully!");
+    setPasswordError(null);
+    
+    if (!password.trim()) {
+      setPasswordError("Please enter a new password");
+      return;
+    }
+    
+    if (password === currentPassword) {
+      setPasswordError("New password must be different from the current password");
+      return;
+    }
+
+    try {
+      // Update password using Supabase
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) throw error;
+      
+      setPassword("");
+      setCurrentPassword("");
+      toast({
+        title: "Success",
+        description: "Password updated successfully!",
+      });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update password",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!user) {
@@ -64,8 +105,24 @@ const Profile = () => {
         </div>
       </form>
       <form onSubmit={handlePasswordChange} className="space-y-4">
+        {passwordError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>{passwordError}</AlertDescription>
+          </Alert>
+        )}
         <div>
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="currentPassword">Current Password</Label>
+          <Input
+            id="currentPassword"
+            type="password"
+            value={currentPassword}
+            onChange={e => setCurrentPassword(e.target.value)}
+            placeholder="Enter your current password"
+          />
+        </div>
+        <div>
+          <Label htmlFor="password">New Password</Label>
           <Input
             id="password"
             type="password"
