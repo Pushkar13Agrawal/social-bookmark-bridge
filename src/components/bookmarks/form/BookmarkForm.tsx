@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,6 +73,7 @@ export const BookmarkForm: React.FC<BookmarkFormProps> = ({
           value={formData.source}
           onChange={(value) => setFormData(prev => ({ ...prev, source: value }))}
           disabled={loading}
+          url={formData.url} // Pass URL to PlatformSelect
         />
       </div>
       <div>

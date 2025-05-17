@@ -168,6 +168,37 @@ export async function hasUserBookmarks(userId: string): Promise<boolean> {
   return count !== null && count > 0;
 }
 
+// Helper function to detect platform from URL - exported for reuse
+export const detectPlatformFromUrl = (url: string): SocialPlatform => {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+      return 'youtube';
+    } else if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+      return 'twitter';
+    } else if (hostname.includes('facebook.com') || hostname.includes('fb.com')) {
+      return 'facebook';
+    } else if (hostname.includes('instagram.com')) {
+      return 'instagram';
+    } else if (hostname.includes('linkedin.com')) {
+      return 'linkedin';
+    } else if (hostname.includes('reddit.com')) {
+      return 'reddit';
+    } else if (hostname.includes('pinterest.com')) {
+      return 'pinterest';
+    } else if (hostname.includes('chat.openai.com')) {
+      return 'chatgpt';
+    } else {
+      return 'others';
+    }
+  } catch (error) {
+    console.error('Error parsing URL:', error);
+    return 'others';
+  }
+};
+
 // Add new function to check if all bookmarks are default ones
 export async function hasOnlyDefaultBookmarks(userId: string): Promise<boolean> {
   try {
